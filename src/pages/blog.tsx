@@ -4,25 +4,30 @@ import type { PageProps } from 'gatsby'
 import Layout from '../components/layout'
 import Seo from '../components/seo'
 
-type BlogProps = {
-  data: {
-    allFile: {
+type BlogData = {
+    allMdx: {
       nodes: {
-        name: string
+        frontmatter: {
+          date: string,
+          title: string,
+        },
+        id: string,
+        excerpt: string,
       }[]
     }
-  }
-} & PageProps
+}
 
-const BlogPage = ({ data }: BlogProps) => {
+const BlogPage = ({ data }: PageProps<BlogData>) => {
   return (
     <Layout pageTitle="My Blog Posts">
       <ul>
       {
-        data.allFile.nodes.map(node => (
-          <li key={node.name}>
-            {node.name}
-          </li>
+        data.allMdx.nodes.map((node) => (
+          <article key={node.id}>
+            <h2>{node.frontmatter.title}</h2>
+            <p>Posted: {node.frontmatter.date}</p>
+            <p>{node.excerpt}</p>
+          </article>
         ))
       }
       </ul>
@@ -32,9 +37,14 @@ const BlogPage = ({ data }: BlogProps) => {
 
 export const query = graphql`
   query {
-    allFile {
+    allMdx(sort: { frontmatter: { date: DESC }}) {
       nodes {
-        name
+        frontmatter {
+          date(formatString: "MMMM D, YYYY")
+          title
+        }
+        id
+        excerpt
       }
     }
   }
